@@ -7,8 +7,8 @@
 #include <vector>
 #include <string>
 
-#include <errno.h>
-#include <stdlib.h>
+#include <cerrno>
+#include <cstdlib>
 #include <fcntl.h>
 #include <error.h>
 #include <unistd.h>
