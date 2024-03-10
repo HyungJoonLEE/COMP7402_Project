@@ -4,28 +4,31 @@ project(COMP7402_Project)
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(SOURCE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-set(HEADER_LIST
-        "${INCLUDE_DIR}/ServerHelper.h"
-        "${INCLUDE_DIR}/ClientHelper.h"
+
+set(COMMON_LIST
         "${INCLUDE_DIR}/common.h"
-#        "${PROJECT_SOURCE_DIR}/include/key.h"
-)
+        "${INCLUDE_DIR}/brainpool.h"
 
-
-set(COMMON_SOURCE_LIST
         "${SOURCE_DIR}/common.cpp"
+        "${SOURCE_DIR}/brainpool.cpp"
 )
 
 
-set(SERVER_SOURCE_LIST
+set(SERVER_LIST
+        "${INCLUDE_DIR}/Server.h"
+        "${INCLUDE_DIR}/ServerHelper.h"
+        "${INCLUDE_DIR}/User.h"
+
         "${SOURCE_DIR}/Server.cpp"
         "${SOURCE_DIR}/ServerHelper.cpp"
+        "${SOURCE_DIR}/User.cpp"
 )
 
 
-set(CLIENT_SOURCE_LIST
+set(CLIENT_LIST
+        "${INCLUDE_DIR}/Client.h"
+
         "${SOURCE_DIR}/Client.cpp"
-        "${SOURCE_DIR}/ClientHelper.cpp"
 )
 
 
@@ -41,8 +44,8 @@ find_library(LIBM m REQUIRED)
 find_library(LIBSOCKET socket)
 
 
-add_executable(server ${COMMON_SOURCE_LIST} ${SERVER_SOURCE_LIST} ${HEADER_LIST})
-add_executable(client ${COMMON_SOURCE_LIST} ${CLIENT_SOURCE_LIST} ${HEADER_LIST})
+add_executable(server ${COMMON_LIST} ${SERVER_LIST} ${HEADER_LIST})
+add_executable(client ${COMMON_LIST} ${CLIENT_LIST} ${HEADER_LIST})
 
 target_link_libraries(server PRIVATE ssl crypto)
 target_compile_features(server PRIVATE cxx_std_17)

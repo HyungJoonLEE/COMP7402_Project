@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 #include <string>
-
+#include <iostream>
 #include <cerrno>
 #include <cstdlib>
 #include <fcntl.h>
@@ -17,34 +17,30 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <thread>
+#include "User.h"
+#include "brainpool.h"
+#include "common.h"
+
 
 using namespace std;
 
-static const int PORT = 12345;
-static const int MAXEVENTS = 32;
-static const int BUFFERSIZE = 1024;
-static set<int> activeUsers;
-static vector<string> messages;
-static map<int, string> ipAddresses;
+void error_exit(const char *msg);
 
-class ServerHelper {
-private:
-public:
-    void error_exit(const char *msg);
+int set_nonblock(int fd);
 
-    int set_nonblock(int fd);
+void configure_server_socket(int serverSocket);
 
-    void configure_server_socket(int serverSocket);
+void register_in_epoll(int sock, int epollId);
 
-    void register_in_epoll(int sock, int epollId);
+void register_new_client(int serverSocket, int epollId, array<User, 10>& users);
 
-    void register_new_client(int serverSocket, int epollId);
+void serve_client(int clientSocket, array<User, 10>& users);
 
-    void serve_client(int clientSocket);
+void send_messages(array<User, 10>& users);
 
-    void send_messages();
+void* handleClient(void* socket);
 
-};
-
+void check_and_print(const array<char, BUFFERSIZE>& buffer, const User& user);
 
 #endif //COMP7402_PROJECT_SERVERHELPER_H

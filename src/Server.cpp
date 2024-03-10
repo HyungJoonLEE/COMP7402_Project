@@ -2,8 +2,10 @@
 
 
 int main() {
-    // open and configure the master socket
+    array<User, 10> uv;
+
     int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
     if (serverSocket == -1)
         error_exit("error in socket()");
     configure_server_socket(serverSocket);
@@ -20,17 +22,20 @@ int main() {
     while (true) {
         struct epoll_event currentEvents[MAXEVENTS];
         int nEvents = epoll_wait(epollId, currentEvents, MAXEVENTS, -1);
+
         for (int i = 0; i < nEvents; ++i) {
             int sock = currentEvents[i].data.fd;
+
             if (sock == serverSocket) {
-                // server socket gets request to join
-                register_new_client(serverSocket, epollId);
-            } else {
+                // Accept client
+                register_new_client(serverSocket, epollId, uv);
+            }
+            else {
                 // client socket is ready to something
-                serve_client(sock);
+                serve_client(sock, uv);
             }
         }
-        send_messages();
+//        send_messages(uv);
     }
 
     // stop the server
@@ -42,3 +47,5 @@ int main() {
 
     return EXIT_SUCCESS;
 }
+
+
