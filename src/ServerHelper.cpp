@@ -70,10 +70,10 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         close(clientSocket);
     }
     else if (recvSize > 0) {
-        cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
 
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
+            cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
             string buffer_str(buffer.data());
             string prefix = "[public_key]";
             size_t startPos = buffer_str.find(prefix);
@@ -90,12 +90,41 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                                         point,
                                         shared_secret_key, &secret_len));
                 string ssk_cut = ssk.substr(0, 16);
-                users[clientSocket].set_shared_secret_key(ssk_cut);
                 cout << "Shared secret key [" << users[clientSocket].get_ip() << "]: " << strToHex(ssk_cut) << endl;
+                users[clientSocket].set_shared_secret_key(strToBin(ssk_cut));
             }
             users[clientSocket].set_key_flag(true);
             string message_pub = "[public_key] " + users[clientSocket].get_server_hex_pup();
             write(clientSocket, message_pub.c_str(), message_pub.size());
+
+            Key k;
+            k.generateRoundKeys(users[clientSocket].get_shared_key());
+            k.generateReverseRoundKeys(k.getRK());
+            users[clientSocket].set_reverse_round_keys(k.getRRK());
+        }
+        if (!users[clientSocket].is_file_flag()) {
+            if (contains_word(buffer, "[iv]")) {
+                string iv(buffer.data(), buffer.size());
+                extract_str_after_marker(iv, "[iv]");
+                users[clientSocket].set_iv(iv);
+                cout << "IV: " << users[clientSocket].get_iv() << endl;
+            }
+            if (contains_word(buffer, "[file_name]")) {
+                string file_name(buffer.data(), buffer.size());
+                extract_str_after_marker(file_name, "[file_name]");
+                users[clientSocket].set_file_name(file_name);
+                cout << "File name: " << users[clientSocket].get_file_name() << endl;
+            }
+            if (contains_word(buffer, "[file_size]")){
+                string file_size(buffer.data(), buffer.size());
+                extract_str_after_marker(file_size, "[file_name]");
+                users[clientSocket].set_file_size(file_size);
+                cout << "File size: " << users[clientSocket].get_file_size() << endl;
+            }
+            users[clientSocket].set_file_flag(true);
+        }
+        else {
+            cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
         }
     }
 }
@@ -128,4 +157,28 @@ int set_nonblock(int fd) {
     int flags = 1;
     return ioctl(fd, FIOBIO, &flags);
 #endif
+}
+
+
+bool contains_word(const array<char, BUFFERSIZE>& buffer, const string& word) {
+    string bufferStr(buffer.data(), BUFFERSIZE);
+    return bufferStr.find(word) != string::npos;
+}
+
+
+string extract_str_after_marker(const string& input, const string& marker) {
+    size_t startPos = input.find(marker);
+    if (startPos == string::npos) {
+        return "";
+    }
+
+    startPos += marker.length();
+
+    size_t endPos = input.find(' ', startPos);
+    if (endPos == string::npos) {
+        endPos = input.length();
+    }
+
+    string extracted = input.substr(startPos, endPos - startPos);
+    return extracted;
 }

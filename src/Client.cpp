@@ -69,6 +69,11 @@ int main(int argc, char *argv[]) {
     Key key;
     key.generateRoundKeys(client.get_shared_secret_key());
 
+    // TODO: send iv;
+    message = "[iv] " + client.get_iv();
+    write(fd, message.c_str(), message.size() + 1);
+    message.clear();
+
     // TODO: send file name (.txt or .bmp to DD)
     message = "[file_name] " + client.get_file_name();
     write(fd, message.c_str(), message.size() + 1);
@@ -83,11 +88,13 @@ int main(int argc, char *argv[]) {
     // TODO: if .bmp, get headers using DD
     string ext = getFileExtension(client.get_file_name());
     if (ext == ".bmp") {
-
+        vector<char> header = client.read_header(client.get_file_name(), 54);
+        // TODO: send header
     }
 
     // TODO: encrypt
-
+    Feistel f;
+    f.CBCencrypt()
     // TODO: send
 
 
@@ -99,7 +106,7 @@ int main(int argc, char *argv[]) {
 
 void Client::parse_arguments(int argc, char **argv) {
     int c;
-    while ((c = getopt(argc, argv, ":s:p:f:")) != -1) {
+    while ((c = getopt(argc, argv, ":s:p:f:i:")) != -1) {
         switch (c) {
             case 's': {
                 server_ip = optarg;
@@ -111,6 +118,10 @@ void Client::parse_arguments(int argc, char **argv) {
             }
             case 'f': {
                 file_name = optarg;
+                break;
+            }
+            case 'i': {
+                iv = optarg;
                 break;
             }
             case ':': {
@@ -140,3 +151,19 @@ void Client::print() {
 }
 
 
+vector<char> Client::read_header(const string& fileName, size_t numBytes) {
+    vector<char> buffer(numBytes);
+
+    ifstream file(fileName, ios::binary);
+    if (!file) {
+        throw runtime_error("Error opening file.");
+    }
+
+    file.read(buffer.data(), numBytes);
+
+    if (file.gcount() != numBytes) {
+        throw runtime_error("Error reading from file or file too small.");
+    }
+
+    return buffer;
+}

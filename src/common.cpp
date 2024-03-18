@@ -347,7 +347,7 @@ string removeTrailingZeros(string binStr) {
 
 int addPadding(string& hex) {
     int count;
-    int padding = 16 - (int) hex.size() % 16;
+    int padding = 32 - (int) hex.size() % 32;
     if (padding == 0) return 0;
     for (int i = 0; i < padding; ++i) {
         hex += "0";

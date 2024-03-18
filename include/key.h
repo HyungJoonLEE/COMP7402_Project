@@ -14,7 +14,7 @@ private:
 public:
     void generateRoundKeys(string key);
 
-    void generateReverseRoundKeys(const vector<string> &rkv, int round);
+    void generateReverseRoundKeys(const vector<string> &rkv);
 
     static string shift_left_once(string key_chunk);
 

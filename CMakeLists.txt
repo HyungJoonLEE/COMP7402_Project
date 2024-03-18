@@ -9,10 +9,12 @@ set(COMMON_LIST
         "${INCLUDE_DIR}/common.h"
         "${INCLUDE_DIR}/brainpool.h"
         "${INCLUDE_DIR}/key.h"
+        "${INCLUDE_DIR}/Feistel.h"
 
         "${SOURCE_DIR}/common.cpp"
         "${SOURCE_DIR}/brainpool.cpp"
         "${SOURCE_DIR}/key.cpp"
+        "${SOURCE_DIR}/Feistel.cpp"
 )
 
 

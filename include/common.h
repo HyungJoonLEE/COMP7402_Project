@@ -27,7 +27,7 @@
 
 const int PORT = 53000;
 const int MAXEVENTS = 16;
-const int BUFFERSIZE = 1024;
+const int BUFFERSIZE = 1025;
 
 using namespace std;
 

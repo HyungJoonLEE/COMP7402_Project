@@ -39,10 +39,11 @@ void Key::generateRoundKeys(string key) {
 }
 
 
-void Key::generateReverseRoundKeys(const vector<string> &rkv, int round) {
-    int i = round - 1;
+void Key::generateReverseRoundKeys(const vector<string> &rkv) {
+    int i = 15;
     while(i >= 0) {
         reverseRoundKeys_.push_back(rkv[i]);
+        cout << "Round_key " << i << ": " << rkv[i] << endl;
         i--;
     }
 }

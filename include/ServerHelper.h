@@ -21,6 +21,7 @@
 #include "User.h"
 #include "brainpool.h"
 #include "common.h"
+#include "key.h"
 
 
 using namespace std;
@@ -42,5 +43,9 @@ void send_messages(array<User, 10>& users);
 void* handleClient(void* socket);
 
 void check_and_print(const array<char, BUFFERSIZE>& buffer, const User& user);
+
+bool contains_word(const array<char, BUFFERSIZE>& buffer, const string& word);
+
+string extract_str_after_marker(const string& input, const string& marker);
 
 #endif //COMP7402_PROJECT_SERVERHELPER_H
