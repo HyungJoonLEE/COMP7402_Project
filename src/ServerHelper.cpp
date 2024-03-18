@@ -64,16 +64,16 @@ void register_new_client(int serverSocket, int epollId, array<User, 10>& users) 
 
 void serve_client(int clientSocket, array<User, 10>& users) {
     array<char, BUFFERSIZE> buffer = {};
-    int recvSize = recv(clientSocket, buffer.data(), BUFFERSIZE, MSG_NOSIGNAL);
+    int recvSize = (int) read(clientSocket, buffer.data(), BUFFERSIZE);
     if (recvSize <= 0 && errno != EAGAIN) {
         shutdown(clientSocket, SHUT_RDWR);
         close(clientSocket);
     }
     else if (recvSize > 0) {
+        cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
 
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
-            cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
             string buffer_str(buffer.data());
             string prefix = "[public_key]";
             size_t startPos = buffer_str.find(prefix);
@@ -102,30 +102,30 @@ void serve_client(int clientSocket, array<User, 10>& users) {
             k.generateReverseRoundKeys(k.getRK());
             users[clientSocket].set_reverse_round_keys(k.getRRK());
         }
-        if (!users[clientSocket].is_file_flag()) {
-            if (contains_word(buffer, "[iv]")) {
-                string iv(buffer.data(), buffer.size());
-                extract_str_after_marker(iv, "[iv]");
-                users[clientSocket].set_iv(iv);
-                cout << "IV: " << users[clientSocket].get_iv() << endl;
-            }
-            if (contains_word(buffer, "[file_name]")) {
-                string file_name(buffer.data(), buffer.size());
-                extract_str_after_marker(file_name, "[file_name]");
-                users[clientSocket].set_file_name(file_name);
-                cout << "File name: " << users[clientSocket].get_file_name() << endl;
-            }
-            if (contains_word(buffer, "[file_size]")){
-                string file_size(buffer.data(), buffer.size());
-                extract_str_after_marker(file_size, "[file_name]");
-                users[clientSocket].set_file_size(file_size);
-                cout << "File size: " << users[clientSocket].get_file_size() << endl;
-            }
+
+        // TODO: get file info
+        if (contains_word(buffer, "[iv]")) {
+            string iv(buffer.data(), recvSize);
+            users[clientSocket].set_iv(extract_str_after_marker(iv, "[iv]"));
+            cout << "IV: " << users[clientSocket].get_iv() << endl;
+            buffer.fill(0);
+        }
+        if (contains_word(buffer, "[file_name]")) {
+            string file_name(buffer.data(), recvSize+1);
+            string fn = extract_str_after_marker(file_name, "[file_name]");
+            users[clientSocket].set_file_name(fn);
+            cout << "File name: " << users[clientSocket].get_file_name() << endl;
+            buffer.fill(0);
+        }
+        if (contains_word(buffer, "[file_size]")){
+            string file_size(buffer.data(), recvSize);
+            unsigned long fs = stol(extract_str_after_marker(file_size, "[file_size]"));
+            users[clientSocket].set_file_size(fs);
+            cout << "File size: " << users[clientSocket].get_file_size() << endl;
+            buffer.fill(0);
             users[clientSocket].set_file_flag(true);
         }
-        else {
-            cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
-        }
+
     }
 }
 
@@ -168,17 +168,10 @@ bool contains_word(const array<char, BUFFERSIZE>& buffer, const string& word) {
 
 string extract_str_after_marker(const string& input, const string& marker) {
     size_t startPos = input.find(marker);
-    if (startPos == string::npos) {
-        return "";
+    if (startPos != string::npos) {
+        startPos += marker.length() + 1;
     }
 
-    startPos += marker.length();
-
-    size_t endPos = input.find(' ', startPos);
-    if (endPos == string::npos) {
-        endPos = input.length();
-    }
-
-    string extracted = input.substr(startPos, endPos - startPos);
-    return extracted;
+    string ext = input.substr(startPos);
+    return ext;
 }

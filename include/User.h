@@ -30,7 +30,7 @@ private:
     string file_name;
     string extension;
     string dd;
-    long file_size;
+    unsigned long file_size;
     bool file_name_flag = false;
     bool file_size_flag = false;
     bool key_flag = false;
@@ -55,7 +55,7 @@ public:
     void set_key_flag(bool flag) { key_flag = flag; }
     void set_file_flag(bool flag) { file_flag = flag; }
     void set_file_name(string str_name) { file_name = std::move(str_name); }
-    void set_file_size(string str_size) { file_size = stol(str_size); }
+    void set_file_size(unsigned long fs) { file_size = fs; }
     void set_reverse_round_keys(vector<string> rks) { reverse_round_keys = std::move(rks); }
 
     int get_fd() const { return fd_; }

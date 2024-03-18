@@ -2,8 +2,9 @@
 #include "common.h"
 #include "brainpool.h"
 #include "key.h"
+#include "Feistel.h"
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 256
 
 //Client side
 int main(int argc, char *argv[]) {
@@ -21,6 +22,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     Client client;
+    client.set_fd(fd);
     client.parse_arguments(argc, argv);
 
     create_private_key(priv_key);
@@ -32,6 +34,9 @@ int main(int argc, char *argv[]) {
     sockaddr.sin_addr.s_addr = inet_addr(client.get_ip().c_str());
     sockaddr.sin_port = htons(client.get_port());
     string ip = inet_ntoa(sockaddr.sin_addr);
+
+    int flag = 1;
+    setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int));
 
     socklen = sizeof(sockaddr);
     if (connect(fd,(struct sockaddr*)&sockaddr,socklen) == -1){
@@ -45,7 +50,8 @@ int main(int argc, char *argv[]) {
     // TODO: key exchange
     // send public key
     message = "[public_key] " + pub_str;
-    write(fd, message.c_str(), message.size() + 1);
+    write(fd, message.c_str(), message.size());
+    message.clear();
 
     // read public key
     recv(fd, buffer.data(), BUFFERSIZE, MSG_NOSIGNAL);
@@ -65,25 +71,25 @@ int main(int argc, char *argv[]) {
     }
     memset( buffer.data(), 0, BUFFER_SIZE);
     message.clear();
+
     // TODO: generate key
     Key key;
     key.generateRoundKeys(client.get_shared_secret_key());
+    client.set_round_keys(key.getRK());
 
     // TODO: send iv;
-    message = "[iv] " + client.get_iv();
-    write(fd, message.c_str(), message.size() + 1);
-    message.clear();
+    string iv_message = "[iv] " + client.get_iv();
+    write(fd, iv_message.c_str(), iv_message.size());
 
     // TODO: send file name (.txt or .bmp to DD)
-    message = "[file_name] " + client.get_file_name();
-    write(fd, message.c_str(), message.size() + 1);
-    message.clear();
+    string fn_message = "[file_name] " + client.get_file_name();
+    write(fd, fn_message.c_str(), fn_message.size());
 
     // TODO: send file size
-    int file_size = get_file_size(client.get_file_name());
-    message = "[file_size] " + to_string(file_size);
-    write(fd, message.c_str(), message.size() + 1);
-    message.clear();
+    int file_size = calculate_file_size(client.get_file_name());
+    client.set_file_size(file_size);
+    string fs_message = "[file_size] " + to_string(client.get_file_size());
+    write(fd, fs_message.c_str(), fs_message.size());
 
     // TODO: if .bmp, get headers using DD
     string ext = getFileExtension(client.get_file_name());
@@ -92,10 +98,11 @@ int main(int argc, char *argv[]) {
         // TODO: send header
     }
 
-    // TODO: encrypt
+    // TODO: encrypt & send
     Feistel f;
-    f.CBCencrypt()
-    // TODO: send
+    f.CBC_encrypt(client);
+
+    // TODO: send EOF
 
 
 
@@ -117,11 +124,13 @@ void Client::parse_arguments(int argc, char **argv) {
                 break;
             }
             case 'f': {
-                file_name = optarg;
+                string fn(optarg);
+                file_name = fn;
                 break;
             }
             case 'i': {
-                iv = optarg;
+                string is(optarg);
+                iv = strToBin(is);
                 break;
             }
             case ':': {

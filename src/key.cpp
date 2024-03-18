@@ -33,7 +33,7 @@ void Key::generateRoundKeys(string key) {
         for (int j : pc2) {
             round_key += combined_key[j - 1];
         }
-        cout << "Round_key " << i << ": " << round_key << endl;
+//        cout << "Round_key " << i << ": " << round_key << endl;
         roundKeys_.push_back(round_key);
     }
 }
@@ -43,7 +43,7 @@ void Key::generateReverseRoundKeys(const vector<string> &rkv) {
     int i = 15;
     while(i >= 0) {
         reverseRoundKeys_.push_back(rkv[i]);
-        cout << "Round_key " << i << ": " << rkv[i] << endl;
+//        cout << "Round_key " << i << ": " << rkv[i] << endl;
         i--;
     }
 }

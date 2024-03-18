@@ -27,7 +27,7 @@
 
 const int PORT = 53000;
 const int MAXEVENTS = 16;
-const int BUFFERSIZE = 1025;
+const int BUFFERSIZE = 256;
 
 using namespace std;
 
@@ -38,7 +38,7 @@ void fatal_message(const char *file, const char *func, size_t line,
                              const char *msg, int exit_code);
 
 string print_shared_key(const unsigned char* data, size_t length);
-int get_file_size(const string& filePath);
+int calculate_file_size(const string& filePath);
 
 string hexCharToBin(char hexChar);
 string hexToBin(const string& hex);

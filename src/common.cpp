@@ -88,7 +88,7 @@ string print_shared_key(const unsigned char* data, size_t length) {
 }
 
 
-int get_file_size(const string& filePath) {
+int calculate_file_size(const string& filePath) {
     int file_size;
     ifstream file(filePath, ifstream::binary | ifstream::ate);
     if (!file) {
