@@ -30,6 +30,8 @@
 #include <condition_variable>
 #include <utility>
 #import <array>
+#include <fstream>
+
 
 
 using namespace std;
@@ -39,7 +41,7 @@ private:
     string server_ip;
     in_port_t server_port;
     string file_name;
-    string file_size;
+    int file_size;
 
     EC_KEY *private_key;
     const EC_POINT *public_key;
@@ -61,6 +63,8 @@ public:
     string get_ip() const { return server_ip; };
     in_port_t get_port() const { return server_port; }
     string get_shared_secret_key() const { return shared_secret_key; }
+    string get_file_name() const { return file_name; }
+    int get_file_size() const { return file_size; }
     EC_KEY *get_private_key() const { return private_key; }
     EC_POINT* get_public_key() const { return const_cast<EC_POINT *>(public_key); }
     size_t serialize_ec_point(const EC_GROUP *group, const EC_POINT *point, unsigned char **out);

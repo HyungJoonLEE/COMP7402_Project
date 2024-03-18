@@ -8,9 +8,11 @@ set(SOURCE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(COMMON_LIST
         "${INCLUDE_DIR}/common.h"
         "${INCLUDE_DIR}/brainpool.h"
+        "${INCLUDE_DIR}/key.h"
 
         "${SOURCE_DIR}/common.cpp"
         "${SOURCE_DIR}/brainpool.cpp"
+        "${SOURCE_DIR}/key.cpp"
 )
 
 

@@ -12,7 +12,17 @@
 #include <cstring>
 #include <cstdint>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
+#include <limits>
+#include <sstream>
+#include <utility>
+#include <vector>
+#include <bitset>
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <unordered_map>
 
 
 const int PORT = 53000;
@@ -28,6 +38,28 @@ void fatal_message(const char *file, const char *func, size_t line,
                              const char *msg, int exit_code);
 
 string print_shared_key(const unsigned char* data, size_t length);
+int get_file_size(const string& filePath);
 
+string hexCharToBin(char hexChar);
+string hexToBin(const string& hex);
+string binToHex(const string& binary);
+string XOR_binary(const string& a, const string& b);
+string strToHex(const string& input);
+string keyHexToBinary(const string& hex, bool padTo64);
+string decToBin(int decimal);
+int binToDec(string binary);
+string strToBin(const string& input);
+void appendToFile(const string& filename, const string& hex);
+string readFile(const string& filename);
+string readPlainText(const string& prompt);
+bool isTxt(const string& filename);
+string hexToASCII(const string& hexStr);
+string removeTrailingZeros(string binStr);
+int addPadding(string& hex);
+void runDD(const string& originFileName, const string& encryptedFileName);
+int hexCharToValue(char hexChar);
+void cutLastPadding(string& binary, int n);
+string getFileExtension(const string& filename);
+void printDifferenceRate(const string& inFile, const string& outFile);
 
 #endif //COMP7402_PROJECT_COMMON_H

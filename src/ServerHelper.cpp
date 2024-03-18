@@ -86,11 +86,12 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 size_t secret_len;
                 const EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_brainpoolP256r1);
                 EC_POINT* point = hexStringToEcPoint(group, public_key);
-                string ssk = set_secret(users[clientSocket].get_server_private_key(),
+                string ssk = hexToASCII(set_secret(users[clientSocket].get_server_private_key(),
                                         point,
-                                        shared_secret_key, &secret_len);
-                users[clientSocket].set_shared_secret_key(ssk);
-                cout << "Shared secret key [" << users[clientSocket].get_ip() << "]: " << ssk << endl;
+                                        shared_secret_key, &secret_len));
+                string ssk_cut = ssk.substr(0, 16);
+                users[clientSocket].set_shared_secret_key(ssk_cut);
+                cout << "Shared secret key [" << users[clientSocket].get_ip() << "]: " << strToHex(ssk_cut) << endl;
             }
             users[clientSocket].set_key_flag(true);
             string message_pub = "[public_key] " + users[clientSocket].get_server_hex_pup();

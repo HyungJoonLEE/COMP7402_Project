@@ -1,6 +1,7 @@
 #include "Client.h"
 #include "common.h"
 #include "brainpool.h"
+#include "key.h"
 
 #define BUFFER_SIZE 1024
 
@@ -39,10 +40,12 @@ int main(int argc, char *argv[]) {
     }
 
 
+    string message;
+    message.reserve(1025);
     // TODO: key exchange
     // send public key
-    string message_pubkey = "[public_key] " + pub_str;
-    write(fd, message_pubkey.c_str(), message_pubkey.size() + 1);
+    message = "[public_key] " + pub_str;
+    write(fd, message.c_str(), message.size() + 1);
 
     // read public key
     recv(fd, buffer.data(), BUFFERSIZE, MSG_NOSIGNAL);
@@ -55,20 +58,33 @@ int main(int argc, char *argv[]) {
         startPos += prefix.length() + 1;
         string public_key = buffer_str.substr(startPos);
         EC_POINT* point = hexStringToEcPoint(group, public_key);
-        string ssk = set_secret(priv_key, point, shared_secret_key, &secret_len);
-        client.set_shared_key(ssk);
+        string ssk = hexToASCII(set_secret(priv_key, point, shared_secret_key, &secret_len));
+        string ssk_cut = ssk.substr(0, 16);
+        cout << "Shared secret key [" << ip << "]: " << strToHex(ssk_cut) << endl;
+        client.set_shared_key(strToBin(ssk_cut));
     }
-    cout << "Shared secret key [" << ip << "]: " << client.get_shared_secret_key() << endl;
-
     memset( buffer.data(), 0, BUFFER_SIZE);
+    message.clear();
+    // TODO: generate key
+    Key key;
+    key.generateRoundKeys(client.get_shared_secret_key());
 
+    // TODO: send file name (.txt or .bmp to DD)
+    message = "[file_name] " + client.get_file_name();
+    write(fd, message.c_str(), message.size() + 1);
+    message.clear();
 
-
-
-
-    // TODO: check file extension (.txt or .bmp to DD)
+    // TODO: send file size
+    int file_size = get_file_size(client.get_file_name());
+    message = "[file_size] " + to_string(file_size);
+    write(fd, message.c_str(), message.size() + 1);
+    message.clear();
 
     // TODO: if .bmp, get headers using DD
+    string ext = getFileExtension(client.get_file_name());
+    if (ext == ".bmp") {
+
+    }
 
     // TODO: encrypt
 
@@ -120,10 +136,7 @@ void Client::parse_arguments(int argc, char **argv) {
 void Client::print() {
     cout << "server ip = " << server_ip << endl;
     cout << "server port = " << server_port << endl;
+    cout << "file name = " << file_name << endl;
 }
-
-
-//
-
 
 
