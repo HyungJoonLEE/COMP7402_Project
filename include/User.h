@@ -33,7 +33,7 @@ private:
     string shared_secret_key;
     string file_name;
     string extension;
-    string dd;
+    string file_hdr;
     unsigned long file_size;
     bool file_name_flag = false;
     bool file_size_flag = false;
@@ -65,6 +65,7 @@ public:
     void set_EOC_flag(bool flag) { EOC_flag = flag; }
     void set_file_name(string str_name) { file_name = std::move(str_name); }
     void set_file_size(unsigned long fs) { file_size = fs; }
+    void set_file_header(string hdr) { file_hdr = std::move(hdr); }
     void set_reverse_round_keys(vector<string> rks) { reverse_round_keys = std::move(rks); }
 
     int get_fd() const { return fd_; }
@@ -82,7 +83,7 @@ public:
     string get_hex_data() const  { return hex_data; }
     string get_bin_data() const  { return bin_data; }
     string get_extension() const { return extension; }
-    string get_dd() const { return dd; }
+    string get_file_header() const { return file_hdr; }
     bool is_key_flag() const { return key_flag; }
     bool is_EOC_flag() const { return EOC_flag; }
     bool is_file_name_flag() const { return file_name_flag; }

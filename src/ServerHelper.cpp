@@ -117,8 +117,9 @@ void serve_client(int clientSocket, array<User, 10>& users) {
             users[clientSocket].set_reverse_round_keys(k.getRRK());
         }
 
-        // TODO: get file info
+
         if (!users[clientSocket].is_file_name_flag() || !users[clientSocket].is_file_size_flag()) {
+            // TODO: get IV
             if (contains_word(buffer, "[iv]")) {
                 string iv(buffer.data(), recvSize);
                 users[clientSocket].set_iv(extract_str_after_marker(iv, "[iv]"));
@@ -126,6 +127,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 buffer.fill(0);
                 write(users[clientSocket].get_fd(), "check", 6);
             }
+            // TODO: get file name
             if (contains_word(buffer, "[file_name]")) {
                 string file_name(buffer.data(), recvSize);
                 string fn = extract_str_after_marker(file_name, "[file_name]");
@@ -135,6 +137,14 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 users[clientSocket].set_file_name_flag(true);
                 write(users[clientSocket].get_fd(), "check", 6);
             }
+            if (contains_word(buffer, "[header]")) {
+                string file_hdr(buffer.data(), recvSize);
+                string hdr = extract_str_after_marker(file_hdr, "[header]");
+                buffer.fill(0);
+                users[clientSocket].set_file_header(hdr);
+                write(users[clientSocket].get_fd(), "check", 6);
+            }
+            // TODO: get file size
             if (contains_word(buffer, "[file_size]")) {
                 string file_size(buffer.data(), recvSize);
                 unsigned long fs = stol(extract_str_after_marker(file_size, "[file_size]"));

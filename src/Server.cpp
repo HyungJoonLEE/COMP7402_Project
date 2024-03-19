@@ -56,8 +56,12 @@ int main() {
 }
 
 
-void  create_decrypt_file(User &u) {
+void create_decrypt_file(User &u) {
     appendToFile(u.get_file_name(), u.get_hex_data());
+    if (!isTxt(u.get_file_name())) {
+        vector<char> hdr(u.get_file_header().begin(), u.get_file_header().end());
+        overwriteHeader(u.get_file_name(), hdr);
+    }
 }
 
 

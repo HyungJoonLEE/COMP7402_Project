@@ -64,7 +64,6 @@ public:
     }
 
     void parse_arguments(int argc, char *argv[]);
-    void print();
 
     void set_fd(int fd) { s_fd = fd; }
     void set_file_size(int fs) { file_size = fs; }

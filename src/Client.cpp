@@ -28,8 +28,6 @@ int main(int argc, char *argv[]) {
     create_private_key(priv_key);
     string pub_str = create_public_key(pub_key, priv_key);
 
-    client.print();
-
     sockaddr.sin_family = AF_INET;
     sockaddr.sin_addr.s_addr = inet_addr(client.get_ip().c_str());
     sockaddr.sin_port = htons(client.get_port());
@@ -89,6 +87,17 @@ int main(int argc, char *argv[]) {
     write(fd, fn_message.c_str(), fn_message.size());
     read(fd, buf, 6);
 
+    // TODO: if .bmp, send header
+    string ext = getFileExtension(client.get_file_name());
+    if (ext == "bmp") {
+        vector<char> header = client.read_header(client.get_file_name(), 54);
+        string header_str(header.begin(), header.end());
+        cout << header_str << endl;
+        string hdr_message = "[header] " + header_str;
+        write(fd, hdr_message.c_str(), hdr_message.size());
+        read(fd, buf, 6);
+    }
+
     // TODO: send file size
     int file_size = calculate_file_size(client.get_file_name());
     client.set_file_size(file_size);
@@ -96,12 +105,6 @@ int main(int argc, char *argv[]) {
     write(fd, fs_message.c_str(), fs_message.size());
     read(fd, buf, 6);
 
-    // TODO: if .bmp, get headers using DD
-    string ext = getFileExtension(client.get_file_name());
-    if (ext == ".bmp") {
-        vector<char> header = client.read_header(client.get_file_name(), 54);
-        // TODO: send header
-    }
 
     // TODO: encrypt & send
     Feistel f;
@@ -156,13 +159,6 @@ void Client::parse_arguments(int argc, char **argv) {
             };
         }
     }
-}
-
-
-void Client::print() {
-    cout << "server ip = " << server_ip << endl;
-    cout << "server port = " << server_port << endl;
-    cout << "file name = " << file_name << endl;
 }
 
 
