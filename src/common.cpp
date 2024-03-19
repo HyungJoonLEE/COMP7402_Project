@@ -280,6 +280,7 @@ string readFile(const string& filename) {
         // Read file line by line
         while (getline(file, line)) {
             data += line;
+            data += '\n';
         }
 
         file.close();
@@ -349,7 +350,7 @@ int addPadding(string& hex) {
     int count;
     int padding = (int) hex.size() % 32;
     if (padding == 0) return 0;
-    for (int i = 0; i < padding; ++i) {
+    for (int i = 0; i < 32 - padding; ++i) {
         hex += "0";
         count++;
     }
@@ -437,4 +438,26 @@ void printDifferenceRate(const string& inFile, const string& outFile) {
     }
 
     cout << fixed << setprecision(3) << "Difference rate: " << count / (double)len * 100 << "%" << endl;
+}
+
+
+void overwriteHeader(const std::string& filePath, const std::vector<char>& newHeader) {
+    // Open the file for reading and writing. Do not truncate the file.
+    std::fstream file(filePath, std::ios::in | std::ios::out | std::ios::binary);
+
+    if (!file) {
+        std::cerr << "Error opening file: " << filePath << std::endl;
+        return;
+    }
+
+    // Seek to the start of the file where the header is.
+    file.seekp(0, std::ios::beg);
+
+    if (!file.write(newHeader.data(), newHeader.size())) {
+        std::cerr << "Error writing new header to file." << std::endl;
+    } else {
+        std::cout << "Header successfully overwritten." << std::endl;
+    }
+
+    file.close();
 }

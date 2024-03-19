@@ -62,4 +62,5 @@ void cutLastPadding(string& binary, int n);
 string getFileExtension(const string& filename);
 void printDifferenceRate(const string& inFile, const string& outFile);
 
+void overwriteHeader(const std::string& filePath, const std::vector<char>& newHeader);
 #endif //COMP7402_PROJECT_COMMON_H

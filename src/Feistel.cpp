@@ -22,7 +22,6 @@ void Feistel::CBC_encrypt(Client& c) {
     iv = c.get_iv();
     for (int i = 0; i < bindata_.length(); i += 128) {
         string bin = bindata_.substr(i, 128);
-        int len = bin.size();
         string newbin = XOR_binary(bin, iv);
         string cipherBin = feistel(newbin, c.get_rk());
         if (i + 128 >= bindata_.length() && !isTxt(c.get_file_name())) {
@@ -60,7 +59,7 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
     string decryptHex = binToHex(decryptBin);
     u.append_bin_string(decryptBin);
     u.append_hex_string(decryptHex);
-    cout << u.get_ip() << ": " << hexToASCII(binToHex(decryptBin)) << endl;
+    cout << u.get_ip() << ": " << binToHex(decryptBin) << endl;
     u.set_iv(bin_data);
 //    for (int i = 0; i < bindata_.length(); i += 128) {
 //        string bin = bindata_.substr(i, 128);
