@@ -88,15 +88,15 @@ int main(int argc, char *argv[]) {
     read(fd, buf, 6);
 
     // TODO: if .bmp, send header
-    string ext = getFileExtension(client.get_file_name());
-    if (ext == "bmp") {
-        vector<char> header = client.read_header(client.get_file_name(), 54);
-        string header_str(header.begin(), header.end());
-        cout << header_str << endl;
-        string hdr_message = "[header] " + header_str;
-        write(fd, hdr_message.c_str(), hdr_message.size());
-        read(fd, buf, 6);
-    }
+//    string ext = getFileExtension(client.get_file_name());
+//    if (ext == "bmp") {
+//        vector<char> header = client.read_header(client.get_file_name(), 54);
+//        string header_str(header.begin(), header.end());
+//        cout << header_str << endl;
+//        string hdr_message = "[header] " + header_str;
+//        write(fd, hdr_message.c_str(), hdr_message.size());
+//        read(fd, buf, 6);
+//    }
 
     // TODO: send file size
     int file_size = calculate_file_size(client.get_file_name());
