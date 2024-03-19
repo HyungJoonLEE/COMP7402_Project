@@ -109,12 +109,15 @@ int main(int argc, char *argv[]) {
     // TODO: encrypt & send
     Feistel f;
     f.CBC_encrypt(client);
-    write(client.get_fd(), "EOC", 4);
+    write(client.get_fd(), "EOT", 4);
 
-    // TODO: send EOF
-
+    // TODO: recv ACK
+    read(fd, buf, 6);
+    cout << "server will close this socket" << endl;
 
     close(fd);
+
+
 
     return 0;
 }

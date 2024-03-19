@@ -74,9 +74,9 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         if (users[clientSocket].is_key_flag() &&
             users[clientSocket].is_file_name_flag() &&
             users[clientSocket].is_file_size_flag()) {
-            // TODO: EOC received
+            // TODO: EOT received
             string bin_data(buffer.data(), recvSize);
-            if (!strstr(bin_data.c_str(), "EOC")) {
+            if (!strstr(bin_data.c_str(), "EOT")) {
                 Feistel f;
                 f.CBC_decrypt(users[clientSocket], bin_data);
                 write(users[clientSocket].get_fd(), "ACK", 4);
@@ -88,7 +88,6 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         }
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
-            cout << users[clientSocket].get_ip() << ": " << buffer.data() << endl;
             string buffer_str(buffer.data());
             string prefix = "[public_key]";
             size_t startPos = buffer_str.find(prefix);
@@ -102,8 +101,8 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 const EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_brainpoolP256r1);
                 EC_POINT* point = hexStringToEcPoint(group, public_key);
                 string ssk = hexToASCII(set_secret(users[clientSocket].get_server_private_key(),
-                                        point,
-                                        shared_secret_key, &secret_len));
+                                                   point,
+                                                   shared_secret_key, &secret_len));
                 string ssk_cut = ssk.substr(0, 16);
                 cout << "Shared secret key :" << strToHex(ssk_cut) << " [ " << users[clientSocket].get_ip() << " ]" << endl;
                 users[clientSocket].set_shared_secret_key(strToBin(ssk_cut));

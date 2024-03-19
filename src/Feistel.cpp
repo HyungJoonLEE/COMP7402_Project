@@ -28,7 +28,7 @@ void Feistel::CBC_encrypt(Client& c) {
             cutLastPadding(cipherBin, padding * 4);
         }
         write(c.get_fd(), cipherBin.c_str(), 128);
-        cout << "Sent: " << hexToASCII(binToHex(cipherBin)) << endl;
+        cout << "Sent: " << binToHex(cipherBin) << endl;
         read(c.get_fd(), buf, 4);
         iv = cipherBin;
     }
