@@ -2,34 +2,35 @@
 #include "key.h"
 
 
-void Feistel::CBC_encrypt(Client& u) {
+void Feistel::CBC_encrypt(Client& c) {
+    int padding;
+    string iv;
+
     data_.reserve(3000000);
     hexdata_.reserve(6000000);
     bindata_.reserve(12000000);
 
-    int padding;
-    string iv;
-
     // Input data plain text or file
-    int fd = u.get_fd();
-    initializeData(u);
+    int fd = c.get_fd();
+    initializeData(c);
     char buf[4] = {0};
 
     padding = addPadding(hexdata_);
     bindata_ = hexToBin(hexdata_);
 
     // Feistel process
-    iv = u.get_iv();
+    iv = c.get_iv();
     for (int i = 0; i < bindata_.length(); i += 128) {
         string bin = bindata_.substr(i, 128);
+        int len = bin.size();
         string newbin = XOR_binary(bin, iv);
-        string cipherBin = feistel(newbin, u.get_rk());
-        if (i + 128 >= bindata_.length() && !isTxt(u.get_file_name())) {
+        string cipherBin = feistel(newbin, c.get_rk());
+        if (i + 128 >= bindata_.length() && !isTxt(c.get_file_name())) {
             cutLastPadding(cipherBin, padding * 4);
         }
-        write(u.get_fd(), cipherBin.c_str(), 128);
+        write(c.get_fd(), cipherBin.c_str(), 128);
         cout << "Sent: " << binToHex(cipherBin) << endl;
-        read(u.get_fd(), buf, 4);
+        read(c.get_fd(), buf, 4);
         iv = cipherBin;
     }
     // Process DD
@@ -60,6 +61,7 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
     u.append_bin_string(decryptBin);
     u.append_hex_string(decryptHex);
     cout << u.get_ip() << ": " << hexToASCII(binToHex(decryptBin)) << endl;
+    u.set_iv(bin_data);
 //    for (int i = 0; i < bindata_.length(); i += 128) {
 //        string bin = bindata_.substr(i, 128);
 //        string beforeIv = feistel(bin, mkey.getRRK());
@@ -151,13 +153,13 @@ string Feistel::feistel(const string& bin, const vector<string>& rk) {
 }
 
 
-void Feistel::initializeData(Client &u) {
-    if (isTxt(u.get_file_name())) {
-        data_ = readFile(u.get_file_name());
+void Feistel::initializeData(Client &c) {
+    if (isTxt(c.get_file_name())) {
+        data_ = readFile(c.get_file_name());
         hexdata_ = strToHex(data_);
     }
     else {
-        hexdata_ = readFile(u.get_file_name());
+        hexdata_ = readFile(c.get_file_name());
     }
 }
 

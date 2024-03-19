@@ -38,6 +38,7 @@ private:
     bool file_name_flag = false;
     bool file_size_flag = false;
     bool key_flag = false;
+    bool EOC_flag = false;
 
 
 public:
@@ -61,6 +62,7 @@ public:
     void set_key_flag(bool flag) { key_flag = flag; }
     void set_file_name_flag(bool flag) { file_name_flag = flag; }
     void set_file_size_flag(bool flag) { file_size_flag = flag; }
+    void set_EOC_flag(bool flag) { EOC_flag = flag; }
     void set_file_name(string str_name) { file_name = std::move(str_name); }
     void set_file_size(unsigned long fs) { file_size = fs; }
     void set_reverse_round_keys(vector<string> rks) { reverse_round_keys = std::move(rks); }
@@ -77,9 +79,12 @@ public:
     vector<string> get_reverse_round_keys() const { return reverse_round_keys; }
     string get_file_name() const { return file_name; }
     int get_file_size() const { return  file_size; }
+    string get_hex_data() const  { return hex_data; }
+    string get_bin_data() const  { return bin_data; }
     string get_extension() const { return extension; }
     string get_dd() const { return dd; }
     bool is_key_flag() const { return key_flag; }
+    bool is_EOC_flag() const { return EOC_flag; }
     bool is_file_name_flag() const { return file_name_flag; }
     bool is_file_size_flag() const { return file_size_flag; }
 
@@ -87,7 +92,7 @@ public:
         bin_data += bin_str;
     }
     void append_hex_string(const std::string& hex_str) {
-        bin_data += hex_str;
+        hex_data += hex_str;
     }
 };
 #endif //COMP7402_PROJECT_USER_H

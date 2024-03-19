@@ -1,5 +1,7 @@
 #include "ServerHelper.h"
 
+void  create_decrypt_file(User &u);
+void close_client_socket(int epoll_fd, int client_socket);
 
 int main() {
     array<User, 10> uv;
@@ -33,6 +35,11 @@ int main() {
             else {
                 // client socket is ready to something
                 serve_client(sock, uv);
+                if (uv[sock].is_EOC_flag()) {
+                    thread t(create_decrypt_file, ref(uv[sock]));
+                    t.join();
+                    close_client_socket(epollId, sock);
+                }
             }
         }
 //        send_messages(uv);
@@ -49,3 +56,18 @@ int main() {
 }
 
 
+void  create_decrypt_file(User &u) {
+    appendToFile(u.get_file_name(), u.get_hex_data());
+}
+
+
+void close_client_socket(int epoll_fd, int client_socket) {
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr) == -1) {
+        perror("epoll_ctl: EPOLL_CTL_DEL");
+    }
+
+    // Close the socket
+    if (close(client_socket) == -1) {
+        perror("close");
+    }
+}

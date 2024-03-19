@@ -45,6 +45,10 @@ private:
     int file_size;
     int s_fd;
 
+    string data_;
+    string hexdata_;
+    string bindata_;
+
     EC_KEY *private_key;
     const EC_POINT *public_key;
     string string_pub;

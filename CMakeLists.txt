@@ -25,7 +25,6 @@ set(SERVER_LIST
 
         "${SOURCE_DIR}/Server.cpp"
         "${SOURCE_DIR}/ServerHelper.cpp"
-        "${SOURCE_DIR}/User.cpp"
 )
 
 

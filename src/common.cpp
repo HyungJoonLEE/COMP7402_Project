@@ -233,7 +233,7 @@ void appendToFile(const string& filename, const string& hex) {
             cerr << "Failed to open file for writing." << endl;
             return;
         }
-        file << hex;
+        file << hexToASCII(hex);
 
         file.close();
     }
@@ -347,7 +347,7 @@ string removeTrailingZeros(string binStr) {
 
 int addPadding(string& hex) {
     int count;
-    int padding = 32 - (int) hex.size() % 32;
+    int padding = (int) hex.size() % 32;
     if (padding == 0) return 0;
     for (int i = 0; i < padding; ++i) {
         hex += "0";

@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <thread>
+#include <functional>
 #include "User.h"
 #include "brainpool.h"
 #include "common.h"
@@ -47,5 +48,7 @@ void check_and_print(const array<char, BUFFERSIZE>& buffer, const User& user);
 bool contains_word(const array<char, BUFFERSIZE>& buffer, const string& word);
 
 string extract_str_after_marker(const string& input, const string& marker);
+
+void thread_create_file(User &u);
 
 #endif //COMP7402_PROJECT_SERVERHELPER_H

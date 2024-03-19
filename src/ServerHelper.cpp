@@ -81,7 +81,10 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 f.CBC_decrypt(users[clientSocket], bin_data);
                 write(users[clientSocket].get_fd(), "ACK", 4);
             }
-            else return;
+            else {
+                users[clientSocket].set_EOC_flag(true);
+                return;
+            }
         }
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
@@ -126,7 +129,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
             if (contains_word(buffer, "[file_name]")) {
                 string file_name(buffer.data(), recvSize);
                 string fn = extract_str_after_marker(file_name, "[file_name]");
-                users[clientSocket].set_file_name(fn);
+                users[clientSocket].set_file_name("dec_" + fn);
 //                cout << "File name: " << users[clientSocket].get_file_name() << endl;
                 buffer.fill(0);
                 users[clientSocket].set_file_name_flag(true);
