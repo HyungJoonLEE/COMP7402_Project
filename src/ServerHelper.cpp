@@ -88,6 +88,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         }
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
+            cout << users[clientSocket].get_ip() << ": " << buffer.data() << endl;
             string buffer_str(buffer.data());
             string prefix = "[public_key]";
             size_t startPos = buffer_str.find(prefix);

@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
     // TODO: send EOF
 
 
-
+    close(fd);
 
     return 0;
 }
