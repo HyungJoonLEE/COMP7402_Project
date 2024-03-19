@@ -26,12 +26,11 @@ private:
     string hexdata_;
     string bindata_;
 public:
-    Feistel();
     void initializeData(Client& u);
     static string feistel (const string& bin, const vector<string>& rk);
 
     void CBC_encrypt(Client& u);
-    void CBC_decrypt(User& u);
+    void CBC_decrypt(User& u, string &bin_data);
 };
 
 

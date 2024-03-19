@@ -2,20 +2,18 @@
 #include "key.h"
 
 
-Feistel::Feistel() {
+void Feistel::CBC_encrypt(Client& u) {
     data_.reserve(3000000);
     hexdata_.reserve(6000000);
     bindata_.reserve(12000000);
-}
 
-
-void Feistel::CBC_encrypt(Client& u) {
     int padding;
     string iv;
 
     // Input data plain text or file
     int fd = u.get_fd();
     initializeData(u);
+    char buf[4] = {0};
 
     padding = addPadding(hexdata_);
     bindata_ = hexToBin(hexdata_);
@@ -30,9 +28,10 @@ void Feistel::CBC_encrypt(Client& u) {
             cutLastPadding(cipherBin, padding * 4);
         }
         write(u.get_fd(), cipherBin.c_str(), 128);
+        cout << "Sent: " << binToHex(cipherBin) << endl;
+        read(u.get_fd(), buf, 4);
         iv = cipherBin;
     }
-
     // Process DD
 //    if (!u.get_file_name().empty() && !isTxt(u.get_file_name())) {
 //        runDD(u.get_file_name(), u.getOutFile());
@@ -40,46 +39,54 @@ void Feistel::CBC_encrypt(Client& u) {
 }
 
 
-void Feistel::CBC_decrypt(User &u) {
+void Feistel::CBC_decrypt(User &u, string &bin_data) {
     Key mkey;
     int padding;
     string iv;
 
 
-    hexdata_ = readFile(u.get_file_name());
-    if (!isTxt(u.get_file_name())) {
-        padding = addPadding(hexdata_);
-    }
-    bindata_ = hexToBin(hexdata_);
-
     iv = u.get_iv();
-
-    for (int i = 0; i < bindata_.length(); i += 128) {
-        string bin = bindata_.substr(i, 128);
-        string beforeIv = feistel(bin, mkey.getRRK());
-        string decryptBin = XOR_binary(beforeIv, iv);
-        iv = bin;
-
-        // If data was from .txt file
-        if (bin.size() <= 128 && isTxt(u.get_file_name())) {
-            decryptBin =  removeTrailingZeros(decryptBin);
-        }
-
-        // If data was from other file
-        if (i + 128 >= bindata_.length() && !isTxt(u.get_file_name())) {
-            cutLastPadding(decryptBin, padding * 4);
-        }
-
-        if (isTxt(u.get_file_name())) {
-            appendToFile(u.get_file_name(), hexToASCII(binToHex(decryptBin)));
-        }
-        else {
-            appendToFile(u.get_file_name(), binToHex(decryptBin));
-        }
+    string beforeIv = feistel(bin_data, u.get_reverse_round_keys());
+    string decryptBin = XOR_binary(beforeIv, iv);
+    // If data was from text
+    if (bin_data.size() <= 128 && isTxt(u.get_file_name())) {
+        decryptBin =  removeTrailingZeros(decryptBin);
     }
-    if (!isTxt(u.get_file_name())) {
-        runDD(u.get_file_name(), u.get_file_name());
+    // If data was from other file
+    if (bin_data.size() <= 128 && !isTxt(u.get_file_name())) {
+        cutLastPadding(decryptBin, padding * 4);
     }
+    string decryptHex = binToHex(decryptBin);
+    u.append_bin_string(decryptBin);
+    u.append_hex_string(decryptHex);
+    cout << u.get_ip() << ": " << hexToASCII(binToHex(decryptBin)) << endl;
+//    for (int i = 0; i < bindata_.length(); i += 128) {
+//        string bin = bindata_.substr(i, 128);
+//        string beforeIv = feistel(bin, mkey.getRRK());
+//        string decryptBin = XOR_binary(beforeIv, iv);
+//        iv = bin;
+//
+//        // If data was from .txt file
+//        if (bin.size() <= 128 && isTxt(u.get_file_name())) {
+//            decryptBin =  removeTrailingZeros(decryptBin);
+//        }
+//
+//        // If data was from other file
+//        if (i + 128 >= bindata_.length() && !isTxt(u.get_file_name())) {
+//            cutLastPadding(decryptBin, padding * 4);
+//        }
+//        cout << u.get_ip() + " : " + hexToASCII(binToHex(decryptBin)) << endl;
+//
+//        if (isTxt(u.get_file_name())) {
+//            appendToFile(u.get_file_name(), hexToASCII(binToHex(decryptBin)));
+//        }
+//        else {
+//            appendToFile(u.get_file_name(), binToHex(decryptBin));
+//        }
+//    }
+//    if (!isTxt(u.get_file_name())) {
+//        runDD(u.get_file_name(), u.get_file_name());
+//    }
 }
 
 

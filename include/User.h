@@ -15,6 +15,10 @@ using namespace std;
 
 class User {
 private:
+    string data;
+    string hex_data;
+    string bin_data;
+
     int fd_;
     string ip_;
 
@@ -34,7 +38,6 @@ private:
     bool file_name_flag = false;
     bool file_size_flag = false;
     bool key_flag = false;
-    bool file_flag = false;
 
 
 public:
@@ -42,6 +45,9 @@ public:
         server_private_key = nullptr;
         server_public_key = nullptr;
         client_public_key = nullptr;
+        data.reserve(3000000);
+        hex_data.reserve(6000000);
+        bin_data.reserve(12000000);
     }
 
     void set_fd(int fd) { fd_ = fd; }
@@ -53,7 +59,8 @@ public:
     void set_shared_secret_key(string ssk) { shared_secret_key = std::move(ssk); }
     void set_iv(string str_iv) { iv = std::move(str_iv); }
     void set_key_flag(bool flag) { key_flag = flag; }
-    void set_file_flag(bool flag) { file_flag = flag; }
+    void set_file_name_flag(bool flag) { file_name_flag = flag; }
+    void set_file_size_flag(bool flag) { file_size_flag = flag; }
     void set_file_name(string str_name) { file_name = std::move(str_name); }
     void set_file_size(unsigned long fs) { file_size = fs; }
     void set_reverse_round_keys(vector<string> rks) { reverse_round_keys = std::move(rks); }
@@ -67,19 +74,20 @@ public:
     EC_POINT* get_client_public_key() { return client_public_key; }
     string get_shared_key()  { return shared_secret_key; }
     string get_iv() const { return iv; }
+    vector<string> get_reverse_round_keys() const { return reverse_round_keys; }
     string get_file_name() const { return file_name; }
     int get_file_size() const { return  file_size; }
     string get_extension() const { return extension; }
     string get_dd() const { return dd; }
     bool is_key_flag() const { return key_flag; }
-    bool is_file_flag() const { return file_name_flag; }
+    bool is_file_name_flag() const { return file_name_flag; }
     bool is_file_size_flag() const { return file_size_flag; }
 
-    void createPrivateKey();
-
-    void createPublicKey();
-
-    void generateKeys();
-
+    void append_bin_string(const std::string& bin_str) {
+        bin_data += bin_str;
+    }
+    void append_hex_string(const std::string& hex_str) {
+        bin_data += hex_str;
+    }
 };
 #endif //COMP7402_PROJECT_USER_H

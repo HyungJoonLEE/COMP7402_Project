@@ -1,4 +1,5 @@
 #include "ServerHelper.h"
+#include "Feistel.h"
 
 
 void configure_server_socket(int serverSocket) {
@@ -70,8 +71,18 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         close(clientSocket);
     }
     else if (recvSize > 0) {
-        cout << users[clientSocket].get_ip() + " : " + buffer.data() << endl;
-
+        if (users[clientSocket].is_key_flag() &&
+            users[clientSocket].is_file_name_flag() &&
+            users[clientSocket].is_file_size_flag()) {
+            // TODO:
+            string bin_data(buffer.data(), recvSize);
+            if (!strstr(bin_data.c_str(), "EOC")) {
+                Feistel f;
+                f.CBC_decrypt(users[clientSocket], bin_data);
+                write(users[clientSocket].get_fd(), "ACK", 4);
+            }
+            else return;
+        }
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
             string buffer_str(buffer.data());
@@ -90,7 +101,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                                         point,
                                         shared_secret_key, &secret_len));
                 string ssk_cut = ssk.substr(0, 16);
-                cout << "Shared secret key [" << users[clientSocket].get_ip() << "]: " << strToHex(ssk_cut) << endl;
+                cout << "Shared secret key :" << strToHex(ssk_cut) << " [ " << users[clientSocket].get_ip() << " ]" << endl;
                 users[clientSocket].set_shared_secret_key(strToBin(ssk_cut));
             }
             users[clientSocket].set_key_flag(true);
@@ -104,28 +115,33 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         }
 
         // TODO: get file info
-        if (contains_word(buffer, "[iv]")) {
-            string iv(buffer.data(), recvSize);
-            users[clientSocket].set_iv(extract_str_after_marker(iv, "[iv]"));
-            cout << "IV: " << users[clientSocket].get_iv() << endl;
-            buffer.fill(0);
+        if (!users[clientSocket].is_file_name_flag() || !users[clientSocket].is_file_size_flag()) {
+            if (contains_word(buffer, "[iv]")) {
+                string iv(buffer.data(), recvSize);
+                users[clientSocket].set_iv(extract_str_after_marker(iv, "[iv]"));
+//                cout << "IV: " << users[clientSocket].get_iv() << endl;
+                buffer.fill(0);
+                write(users[clientSocket].get_fd(), "check", 6);
+            }
+            if (contains_word(buffer, "[file_name]")) {
+                string file_name(buffer.data(), recvSize);
+                string fn = extract_str_after_marker(file_name, "[file_name]");
+                users[clientSocket].set_file_name(fn);
+//                cout << "File name: " << users[clientSocket].get_file_name() << endl;
+                buffer.fill(0);
+                users[clientSocket].set_file_name_flag(true);
+                write(users[clientSocket].get_fd(), "check", 6);
+            }
+            if (contains_word(buffer, "[file_size]")) {
+                string file_size(buffer.data(), recvSize);
+                unsigned long fs = stol(extract_str_after_marker(file_size, "[file_size]"));
+                users[clientSocket].set_file_size(fs);
+//                cout << "File size: " << users[clientSocket].get_file_size() << endl;
+                buffer.fill(0);
+                users[clientSocket].set_file_size_flag(true);
+                write(users[clientSocket].get_fd(), "check", 6);
+            }
         }
-        if (contains_word(buffer, "[file_name]")) {
-            string file_name(buffer.data(), recvSize+1);
-            string fn = extract_str_after_marker(file_name, "[file_name]");
-            users[clientSocket].set_file_name(fn);
-            cout << "File name: " << users[clientSocket].get_file_name() << endl;
-            buffer.fill(0);
-        }
-        if (contains_word(buffer, "[file_size]")){
-            string file_size(buffer.data(), recvSize);
-            unsigned long fs = stol(extract_str_after_marker(file_size, "[file_size]"));
-            users[clientSocket].set_file_size(fs);
-            cout << "File size: " << users[clientSocket].get_file_size() << endl;
-            buffer.fill(0);
-            users[clientSocket].set_file_flag(true);
-        }
-
     }
 }
 

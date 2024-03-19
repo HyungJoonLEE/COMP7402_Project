@@ -77,19 +77,24 @@ int main(int argc, char *argv[]) {
     key.generateRoundKeys(client.get_shared_secret_key());
     client.set_round_keys(key.getRK());
 
+    char buf[6] = {0};
+
     // TODO: send iv;
     string iv_message = "[iv] " + client.get_iv();
     write(fd, iv_message.c_str(), iv_message.size());
+    read(fd, buf, 6);
 
     // TODO: send file name (.txt or .bmp to DD)
     string fn_message = "[file_name] " + client.get_file_name();
     write(fd, fn_message.c_str(), fn_message.size());
+    read(fd, buf, 6);
 
     // TODO: send file size
     int file_size = calculate_file_size(client.get_file_name());
     client.set_file_size(file_size);
     string fs_message = "[file_size] " + to_string(client.get_file_size());
     write(fd, fs_message.c_str(), fs_message.size());
+    read(fd, buf, 6);
 
     // TODO: if .bmp, get headers using DD
     string ext = getFileExtension(client.get_file_name());
@@ -101,6 +106,7 @@ int main(int argc, char *argv[]) {
     // TODO: encrypt & send
     Feistel f;
     f.CBC_encrypt(client);
+    write(client.get_fd(), "EOC", 4);
 
     // TODO: send EOF
 
