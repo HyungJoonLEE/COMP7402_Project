@@ -38,7 +38,7 @@ int main() {
                 if (uv[sock].is_EOC_flag()) {
                     thread t(create_decrypt_file, ref(uv[sock]));
                     t.join();
-                    close_client_socket(epollId, sock);
+                    close_client_socket(epollId, uv[sock].get_fd());
                 }
             }
         }
