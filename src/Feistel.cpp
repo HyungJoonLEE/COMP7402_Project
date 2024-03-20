@@ -59,7 +59,7 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
     string decryptHex = binToHex(decryptBin);
     u.append_bin_string(decryptBin);
     u.append_hex_string(decryptHex);
-    cout << u.get_ip() << ": " << hexToASCII(binToHex(decryptBin)) << endl;
+    cout << u.get_ip() << ": " << binToHex(decryptBin) << endl;
     u.set_iv(bin_data);
 //    for (int i = 0; i < bindata_.length(); i += 128) {
 //        string bin = bindata_.substr(i, 128);
