@@ -81,8 +81,9 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 f.CBC_decrypt(users[clientSocket], bin_data);
                 write(users[clientSocket].get_fd(), "ACK", 4);
             }
-            if (strcmp(bin_data.c_str(), "EOT") == 0) {
+            else {
                 users[clientSocket].set_EOC_flag(true);
+                return;
             }
         }
         // TODO: pub key exchange
