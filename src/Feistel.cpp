@@ -16,6 +16,7 @@ void Feistel::CBC_encrypt(Client& c) {
 
     padding = addPadding(hexdata_);
     bindata_ = hexToBin(hexdata_);
+    int block = 1;
 
     // Feistel process
     iv = c.get_iv();
@@ -23,11 +24,12 @@ void Feistel::CBC_encrypt(Client& c) {
         string bin = bindata_.substr(i, 128);
         string newbin = XOR_binary(bin, iv);
         string cipherBin = feistel(newbin, c.get_rk());
+        cout << "Sent[" << block << "]: "  << binToHex(cipherBin) << endl;
+        block++;
         if (i + 128 >= bindata_.length() && !isTxt(c.get_file_name())) {
             cutLastPadding(cipherBin, padding * 4);
         }
         write(c.get_fd(), cipherBin.c_str(), 128);
-        cout << "Sent: " << binToHex(cipherBin) << endl;
         read(c.get_fd(), buf, 4);
         iv = cipherBin;
     }
@@ -38,6 +40,7 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
     Key mkey;
     int padding;
     string iv;
+    int block = 0;
 
 
     iv = u.get_iv();
