@@ -19,7 +19,6 @@ set(COMMON_LIST
 
 
 set(SERVER_LIST
-        "${INCLUDE_DIR}/Server.h"
         "${INCLUDE_DIR}/ServerHelper.h"
         "${INCLUDE_DIR}/User.h"
 

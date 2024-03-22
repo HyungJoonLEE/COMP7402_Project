@@ -20,8 +20,6 @@ public:
 
     static string shift_left_twice(string key_chunk);
 
-    void setRK(const vector<string> &rkv);
-
     vector<string> getRK() const;
 
     vector<string> getRRK() const;

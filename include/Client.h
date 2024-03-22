@@ -78,7 +78,6 @@ public:
     string get_iv() const { return iv; }
     int get_fd() const { return s_fd; }
     vector<string> get_rk() const { return round_keys; }
-    vector<char> read_header(const string& fileName, size_t numBytes);
 };
 
 

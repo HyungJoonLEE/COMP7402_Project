@@ -88,6 +88,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
         }
         // TODO: pub key exchange
         if (!users[clientSocket].is_key_flag()) {
+            cout << users[clientSocket].get_ip() << ": " << buffer.data() << endl;
             string buffer_str(buffer.data());
             string prefix = "[public_key]";
             size_t startPos = buffer_str.find(prefix);
@@ -104,7 +105,7 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                                                    point,
                                                    shared_secret_key, &secret_len));
                 string ssk_cut = ssk.substr(0, 16);
-                cout << "Shared secret key :" << strToHex(ssk_cut) << " [ " << users[clientSocket].get_ip() << " ]" << endl;
+                cout << "Shared secret key "  << "[ " << users[clientSocket].get_ip() << " ]: " << strToHex(ssk_cut) << endl;
                 users[clientSocket].set_shared_secret_key(strToBin(ssk_cut));
             }
             users[clientSocket].set_key_flag(true);
@@ -123,7 +124,6 @@ void serve_client(int clientSocket, array<User, 10>& users) {
             if (contains_word(buffer, "[iv]")) {
                 string iv(buffer.data(), recvSize);
                 users[clientSocket].set_iv(extract_str_after_marker(iv, "[iv]"));
-//                cout << "IV: " << users[clientSocket].get_iv() << endl;
                 buffer.fill(0);
                 write(users[clientSocket].get_fd(), "check", 6);
             }
@@ -132,24 +132,16 @@ void serve_client(int clientSocket, array<User, 10>& users) {
                 string file_name(buffer.data(), recvSize);
                 string fn = extract_str_after_marker(file_name, "[file_name]");
                 users[clientSocket].set_file_name(users[clientSocket].get_ip() + "_" + fn);
-//                cout << "File name: " << users[clientSocket].get_file_name() << endl;
                 buffer.fill(0);
                 users[clientSocket].set_file_name_flag(true);
                 write(users[clientSocket].get_fd(), "check", 6);
             }
-//            if (contains_word(buffer, "[header]")) {
-//                string file_hdr(buffer.data(), recvSize);
-//                string hdr = extract_str_after_marker(file_hdr, "[header]");
-//                buffer.fill(0);
-//                users[clientSocket].set_file_header(hdr);
-//                write(users[clientSocket].get_fd(), "check", 6);
-//            }
+
             // TODO: get file size
             if (contains_word(buffer, "[file_size]")) {
                 string file_size(buffer.data(), recvSize);
                 unsigned long fs = stol(extract_str_after_marker(file_size, "[file_size]"));
                 users[clientSocket].set_file_size(fs);
-//                cout << "File size: " << users[clientSocket].get_file_size() << endl;
                 buffer.fill(0);
                 users[clientSocket].set_file_size_flag(true);
                 write(users[clientSocket].get_fd(), "check", 6);

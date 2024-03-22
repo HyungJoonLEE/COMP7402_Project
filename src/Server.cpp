@@ -42,27 +42,12 @@ int main() {
                 }
             }
         }
-//        send_messages(uv);
     }
-
-    // stop the server
-    if (shutdown(serverSocket, SHUT_RDWR) == -1)
-        error_exit("error in shutdown()");
-
-    if (close(serverSocket) == -1)
-        error_exit("error in close()");
-
-    return EXIT_SUCCESS;
 }
 
 
 void create_decrypt_file(User &u) {
     appendToFile(u.get_file_name(), u.get_hex_data());
-//    if (!isTxt(u.get_file_name())) {
-//        vector<char> hdr(u.get_file_header().size());
-//        copy(u.get_file_header().begin(), u.get_file_header().end(), hdr.begin());
-//        overwriteHeader(u.get_file_name(), hdr);
-//    }
 }
 
 

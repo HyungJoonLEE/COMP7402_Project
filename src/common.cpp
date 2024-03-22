@@ -37,28 +37,6 @@ in_port_t parse_port(const char *buff, int radix) {
 }
 
 
-string extract_public_key(int socketfd) {
-    char buf[128] = {0};
-    read(socketfd, buf, 255);
-
-    string bufStr(buf); // Convert the char array to a string
-    string prefix = "[public_key]";
-    cout << "server: " << buf << endl;
-    size_t startPos = bufStr.find(prefix);
-    if (startPos != string::npos) {
-        startPos += prefix.length() + 1; // +1 for the space after the prefix
-
-        // Extract the substring starting from startPos to the end of the input string
-        string pk = bufStr.substr(startPos);
-        return pk;
-    }
-    else {
-        cout << "Prefix '[public_key]' not found in the input string." << endl;
-        return "";
-    }
-}
-
-
 void fatal_errno(const char *file, const char *func, size_t line,
                            int err_code, int exit_code) {
     const char *msg;
@@ -174,53 +152,6 @@ string strToHex(const string& input) {
 }
 
 
-string keyHexToBinary(const string& hex, bool padTo64) {
-    string binaryString;
-    for (size_t i = 0; i < hex.length(); ++i) {
-        char c = hex[i];
-
-        int value = (c >= '0' && c <= '9') ? (c - '0') : (tolower(c) - 'a' + 10);
-        for (int j = 3; j >= 0; j--) {
-            binaryString.push_back(((value >> j) & 1) ? '1' : '0');
-        }
-    }
-
-    if (padTo64 && binaryString.length() < 64) {
-        string padded(64 - binaryString.length(), '0');
-        binaryString = padded + binaryString;
-    }
-    return binaryString;
-}
-
-
-string decToBin(int decimal) {
-    string binary;
-    while(decimal != 0) {
-        binary = (decimal % 2 == 0 ? "0" : "1") + binary;
-        decimal = decimal/2;
-    }
-    while(binary.length() < 4){
-        binary = "0" + binary;
-    }
-    return binary;
-}
-
-
-int binToDec(string binary) {
-    int decimal = 0;
-    int counter = 0;
-    int size = binary.length();
-
-    for(int i = size-1; i >= 0; i--) {
-        if(binary[i] == '1') {
-            decimal += pow(2, counter);
-        }
-        counter++;
-    }
-    return decimal;
-}
-
-
 string strToBin(const string& input) {
     return hexToBin(strToHex(input));
 }
@@ -252,15 +183,6 @@ void appendToFile(const string& filename, const string& hex) {
         }
         file.close();
     }
-}
-
-
-string readPlainText(const string& prompt) {
-    string input;
-
-    cout << prompt;
-    getline(cin, input);
-    return input;
 }
 
 
@@ -358,26 +280,6 @@ int addPadding(string& hex) {
 }
 
 
-void printRoundKeys(vector<string> rks) {
-    cout << "< Round Keys >" << endl;
-    for (int i = 0; i < rks.size(); i++) {
-        cout << hex << "Round Key " << i + 1 << " : " << rks[i]  << endl;
-    }
-}
-
-
-void runDD(const string& originFileName, const string& encryptedFileName) {
-    int hdrLen = fileType[getFileExtension(originFileName)];
-    string command = "dd if=" + originFileName + " of=" + encryptedFileName +
-                     " bs=1 count=" + to_string(hdrLen) + " conv=notrunc";
-    int status = system(command.c_str());
-    if (status != 0) {
-        cerr << "Command failed with status: " << status << endl;
-    }
-    cout << endl;
-}
-
-
 int hexCharToValue(char hexChar) {
     if (hexChar >= '0' && hexChar <= '9') return hexChar - '0';
     if (hexChar >= 'a' && hexChar <= 'f') return 10 + (hexChar - 'a');
@@ -395,69 +297,4 @@ void cutLastPadding(string& binary, int n) {
     else {
         binary.erase(binary.size() - n);
     }
-}
-
-
-string getFileExtension(const string& filename) {
-    size_t dotPos = filename.find_last_of('.');
-
-    if (dotPos != string::npos) {
-        string ext = filename.substr(dotPos + 1);
-        return ext;
-    }
-    else
-        return "";
-}
-
-
-void printDifferenceRate(const string& inFile, const string& outFile) {
-    string data, bin1, bin2;
-
-    bin1.reserve(200000);
-    bin2.reserve(200000);
-
-    string f1 = readFile(inFile);
-    string f2 = readFile(outFile);
-
-    if (isTxt(inFile)) {
-        data = hexToASCII(f1);
-        bin1 = strToBin(data);
-        bin2 = strToBin(f2);
-    }
-    else {
-        bin1 = hexToBin(f1);
-        bin2 = hexToBin(f2);
-    }
-
-
-    double count;
-    unsigned long len = bin2.length();
-
-    for (int i = 0; i < len; i++) {
-        if (bin1[i] != bin2[i]) count++;
-    }
-
-    cout << fixed << setprecision(3) << "Difference rate: " << count / (double)len * 100 << "%" << endl;
-}
-
-
-void overwriteHeader(const std::string& filePath, const std::vector<char>& newHeader) {
-    // Open the file for reading and writing. Do not truncate the file.
-    std::fstream file(filePath, std::ios::in | std::ios::out | std::ios::binary);
-
-    if (!file) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return;
-    }
-
-    // Seek to the start of the file where the header is.
-    file.seekp(0, std::ios::beg);
-
-    if (!file.write(newHeader.data(), newHeader.size())) {
-        std::cerr << "Error writing new header to file." << std::endl;
-    } else {
-        std::cout << "Header successfully overwritten." << std::endl;
-    }
-
-    file.close();
 }

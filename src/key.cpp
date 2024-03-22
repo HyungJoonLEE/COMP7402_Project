@@ -85,8 +85,3 @@ vector<string> Key::getRK() const {
 vector<string> Key::getRRK() const {
     return reverseRoundKeys_;
 }
-
-
-void Key::setRK(const vector<string> &rkv) {
-    roundKeys_ = rkv;
-}

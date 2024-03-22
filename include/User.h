@@ -65,7 +65,6 @@ public:
     void set_EOC_flag(bool flag) { EOC_flag = flag; }
     void set_file_name(string str_name) { file_name = std::move(str_name); }
     void set_file_size(unsigned long fs) { file_size = fs; }
-    void set_file_header(string hdr) { file_hdr = std::move(hdr); }
     void set_reverse_round_keys(vector<string> rks) { reverse_round_keys = std::move(rks); }
 
     int get_fd() const { return fd_; }
@@ -73,17 +72,11 @@ public:
     string get_server_hex_pup() const { return server_hex_pub; }
 
     EC_KEY* get_server_private_key() { return server_private_key; }
-    EC_POINT* get_server_public_key() { return server_public_key; }
-    EC_POINT* get_client_public_key() { return client_public_key; }
     string get_shared_key()  { return shared_secret_key; }
     string get_iv() const { return iv; }
     vector<string> get_reverse_round_keys() const { return reverse_round_keys; }
     string get_file_name() const { return file_name; }
-    int get_file_size() const { return  file_size; }
     string get_hex_data() const  { return hex_data; }
-    string get_bin_data() const  { return bin_data; }
-    string get_extension() const { return extension; }
-    string get_file_header() const { return file_hdr; }
     bool is_key_flag() const { return key_flag; }
     bool is_EOC_flag() const { return EOC_flag; }
     bool is_file_name_flag() const { return file_name_flag; }

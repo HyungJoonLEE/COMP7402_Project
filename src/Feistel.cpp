@@ -11,7 +11,6 @@ void Feistel::CBC_encrypt(Client& c) {
     bindata_.reserve(12000000);
 
     // Input data plain text or file
-    int fd = c.get_fd();
     initializeData(c);
     char buf[4] = {0};
 
@@ -32,10 +31,6 @@ void Feistel::CBC_encrypt(Client& c) {
         read(c.get_fd(), buf, 4);
         iv = cipherBin;
     }
-    // Process DD
-//    if (!u.get_file_name().empty() && !isTxt(u.get_file_name())) {
-//        runDD(u.get_file_name(), u.getOutFile());
-//    }
 }
 
 
@@ -61,33 +56,6 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
     u.append_hex_string(decryptHex);
     cout << u.get_ip() << ": " << binToHex(decryptBin) << endl;
     u.set_iv(bin_data);
-//    for (int i = 0; i < bindata_.length(); i += 128) {
-//        string bin = bindata_.substr(i, 128);
-//        string beforeIv = feistel(bin, mkey.getRRK());
-//        string decryptBin = XOR_binary(beforeIv, iv);
-//        iv = bin;
-//
-//        // If data was from .txt file
-//        if (bin.size() <= 128 && isTxt(u.get_file_name())) {
-//            decryptBin =  removeTrailingZeros(decryptBin);
-//        }
-//
-//        // If data was from other file
-//        if (i + 128 >= bindata_.length() && !isTxt(u.get_file_name())) {
-//            cutLastPadding(decryptBin, padding * 4);
-//        }
-//        cout << u.get_ip() + " : " + hexToASCII(binToHex(decryptBin)) << endl;
-//
-//        if (isTxt(u.get_file_name())) {
-//            appendToFile(u.get_file_name(), hexToASCII(binToHex(decryptBin)));
-//        }
-//        else {
-//            appendToFile(u.get_file_name(), binToHex(decryptBin));
-//        }
-//    }
-//    if (!isTxt(u.get_file_name())) {
-//        runDD(u.get_file_name(), u.get_file_name());
-//    }
 }
 
 

@@ -6,7 +6,7 @@
 
 #define BUFFER_SIZE 256
 
-//Client side
+
 int main(int argc, char *argv[]) {
     int fd;
     struct sockaddr_in sockaddr;
@@ -87,24 +87,12 @@ int main(int argc, char *argv[]) {
     write(fd, fn_message.c_str(), fn_message.size());
     read(fd, buf, 6);
 
-    // TODO: if .bmp, send header
-//    string ext = getFileExtension(client.get_file_name());
-//    if (ext == "bmp") {
-//        vector<char> header = client.read_header(client.get_file_name(), 54);
-//        string header_str(header.begin(), header.end());
-//        cout << header_str << endl;
-//        string hdr_message = "[header] " + header_str;
-//        write(fd, hdr_message.c_str(), hdr_message.size());
-//        read(fd, buf, 6);
-//    }
-
     // TODO: send file size
     int file_size = calculate_file_size(client.get_file_name());
     client.set_file_size(file_size);
     string fs_message = "[file_size] " + to_string(client.get_file_size());
     write(fd, fs_message.c_str(), fs_message.size());
     read(fd, buf, 6);
-
 
     // TODO: encrypt & send
     Feistel f;
@@ -162,22 +150,4 @@ void Client::parse_arguments(int argc, char **argv) {
             };
         }
     }
-}
-
-
-vector<char> Client::read_header(const string& fileName, size_t numBytes) {
-    vector<char> buffer(numBytes);
-
-    ifstream file(fileName, ios::binary);
-    if (!file) {
-        throw runtime_error("Error opening file.");
-    }
-
-    file.read(buffer.data(), numBytes);
-
-    if (file.gcount() != numBytes) {
-        throw runtime_error("Error reading from file or file too small.");
-    }
-
-    return buffer;
 }
