@@ -5,6 +5,7 @@ void close_client_socket(int epoll_fd, int client_socket);
 
 int main() {
     array<User, 10> uv;
+    array<thread, 10> threads;
 
     int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -33,12 +34,12 @@ int main() {
                 register_new_client(serverSocket, epollId, uv);
             }
             else {
-                // client socket is ready to something
                 serve_client(sock, uv);
                 if (uv[sock].is_EOC_flag()) {
-                    thread t(create_decrypt_file, ref(uv[sock]));
-                    t.join();
-                    close_client_socket(epollId, uv[sock].get_fd());
+                    int fd = uv[sock].get_fd();
+                    threads[fd] = thread(create_decrypt_file, ref(uv[sock]));
+                    threads[fd].join();
+                    // close_client_socket(epollId, fd);
                 }
             }
         }
@@ -48,6 +49,7 @@ int main() {
 
 void create_decrypt_file(User &u) {
     appendToFile(u.get_file_name(), u.get_hex_data());
+    close(u.get_fd());
 }
 
 
