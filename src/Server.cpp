@@ -1,6 +1,5 @@
 #include "ServerHelper.h"
 
-void  create_decrypt_file(User &u);
 void close_client_socket(int epoll_fd, int client_socket);
 
 int main() {
@@ -35,23 +34,10 @@ int main() {
             }
             else {
                 serve_client(sock, uv);
-                if (uv[sock].is_EOC_flag()) {
-                    int fd = uv[sock].get_fd();
-                    threads[fd] = thread(create_decrypt_file, ref(uv[sock]));
-                    threads[fd].join();
-                    // close_client_socket(epollId, fd);
-                }
             }
         }
     }
 }
-
-
-void create_decrypt_file(User &u) {
-    appendToFile(u.get_file_name(), u.get_hex_data());
-    close(u.get_fd());
-}
-
 
 void close_client_socket(int epoll_fd, int client_socket) {
     if (epoll_ctl(epoll_fd, EPOLL_CTL_DEL, client_socket, nullptr) == -1) {
@@ -63,3 +49,4 @@ void close_client_socket(int epoll_fd, int client_socket) {
         perror("close");
     }
 }
+
