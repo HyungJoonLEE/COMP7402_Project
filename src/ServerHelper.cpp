@@ -2,6 +2,13 @@
 #include "Feistel.h"
 
 
+
+void create_decrypt_file(User &u) {
+    appendToFile(u.get_file_name(), u.get_hex_data());
+    close(u.get_fd());
+}
+
+
 void configure_server_socket(int serverSocket) {
     // bind the socket to the address
     struct sockaddr_in socketAddress;
@@ -73,17 +80,19 @@ void serve_client(int clientSocket, array<User, 10>& users) {
     else if (recvSize > 0) {
         if (users[clientSocket].is_key_flag() &&
             users[clientSocket].is_file_name_flag() &&
-            users[clientSocket].is_file_size_flag()) {
+            users[clientSocket].is_file_size_flag() &&
+            !users[clientSocket].is_EOC_flag()) {
             // TODO: EOT received
             string bin_data(buffer.data(), recvSize);
-            if (!strstr(bin_data.c_str(), "EOT")) {
+            if (strcmp(bin_data.c_str(), "EOT") != 0) {
                 Feistel f;
                 f.CBC_decrypt(users[clientSocket], bin_data);
                 write(users[clientSocket].get_fd(), "ACK", 4);
             }
             else {
                 users[clientSocket].set_EOC_flag(true);
-                return;
+                thread t(create_decrypt_file, ref(users[clientSocket]));
+                t.join();
             }
         }
         // TODO: pub key exchange
