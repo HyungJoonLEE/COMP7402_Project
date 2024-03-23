@@ -26,15 +26,16 @@ void Feistel::CBC_encrypt(Client& c) {
         string cipherBin = feistel(newbin, c.get_rk());
         cout << "Sent[" << block << "]: "  << binToHex(cipherBin) << endl;
         block++;
+        data_ += binToHex(cipherBin);
         if (i + 128 >= bindata_.length() && !isTxt(c.get_file_name())) {
             cutLastPadding(cipherBin, padding * 4);
         }
         write(c.get_fd(), cipherBin.c_str(), 128);
         read(c.get_fd(), buf, 4);
-        if (getFileExtension(c.get_file_name()) == "bmp") {
-            appendToFile(c.get_enc_file_name(), binToHex(cipherBin));
-        }
         iv = cipherBin;
+    }
+    if (getFileExtension(c.get_file_name()) == "bmp") {
+        appendToFile(c.get_enc_file_name(), data_);
     }
 }
 
@@ -54,7 +55,7 @@ void Feistel::CBC_decrypt(User &u, string &bin_data) {
         decryptBin =  removeTrailingZeros(decryptBin);
     }
     // If data was from other file
-    if (bin_data.size() <= 128 && !isTxt(u.get_file_name())) {
+    if (bin_data.size() < 128 && !isTxt(u.get_file_name())) {
         cutLastPadding(decryptBin, padding * 4);
     }
     string decryptHex = binToHex(decryptBin);
