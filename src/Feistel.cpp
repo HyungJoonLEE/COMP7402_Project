@@ -31,6 +31,9 @@ void Feistel::CBC_encrypt(Client& c) {
         }
         write(c.get_fd(), cipherBin.c_str(), 128);
         read(c.get_fd(), buf, 4);
+        if (getFileExtension(c.get_file_name()) == "bmp") {
+            appendToFile(c.get_enc_file_name(), binToHex(cipherBin));
+        }
         iv = cipherBin;
     }
 }

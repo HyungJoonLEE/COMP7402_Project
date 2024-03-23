@@ -54,5 +54,6 @@ string removeTrailingZeros(string binStr);
 int addPadding(string& hex);
 int hexCharToValue(char hexChar);
 void cutLastPadding(string& binary, int n);
-
+string getFileExtension(const string& filename);
+void runDD(const string& originFileName, const string& encryptedFileName);
 #endif //COMP7402_PROJECT_COMMON_H

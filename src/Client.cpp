@@ -101,11 +101,13 @@ int main(int argc, char *argv[]) {
 
     // TODO: recv ACK
     read(fd, buf, 6);
+    if (getFileExtension(client.get_file_name()) == "bmp") {
+        runDD(client.get_file_name(), client.get_enc_file_name());
+    }
+
     cout << "server will close this socket" << endl;
 
     close(fd);
-
-
 
     return 0;
 }
@@ -126,6 +128,7 @@ void Client::parse_arguments(int argc, char **argv) {
             case 'f': {
                 string fn(optarg);
                 file_name = fn;
+                enc_file_name = "enc_" + fn;
                 break;
             }
             case 'i': {

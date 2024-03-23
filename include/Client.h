@@ -42,6 +42,7 @@ private:
     string server_ip;
     in_port_t server_port;
     string file_name;
+    string enc_file_name;
     int file_size;
     int s_fd;
 
@@ -74,6 +75,7 @@ public:
     in_port_t get_port() const { return server_port; }
     string get_shared_secret_key() const { return shared_secret_key; }
     string get_file_name() const { return file_name; }
+    string get_enc_file_name() const { return enc_file_name; }
     int get_file_size() const { return file_size; }
     string get_iv() const { return iv; }
     int get_fd() const { return s_fd; }

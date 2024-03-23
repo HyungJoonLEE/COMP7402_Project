@@ -298,3 +298,27 @@ void cutLastPadding(string& binary, int n) {
         binary.erase(binary.size() - n);
     }
 }
+
+
+string getFileExtension(const string& filename) {
+    size_t dotPos = filename.find_last_of('.');
+
+    if (dotPos != string::npos) {
+        string ext = filename.substr(dotPos + 1);
+        return ext;
+    }
+    else
+        return "";
+}
+
+
+void runDD(const string& originFileName, const string& encryptedFileName) {
+    int hdrLen = fileType[getFileExtension(originFileName)];
+    string command = "dd if=" + originFileName + " of=" + encryptedFileName +
+                     " bs=1 count=" + to_string(hdrLen) + " conv=notrunc";
+    int status = system(command.c_str());
+    if (status != 0) {
+        cerr << "Command failed with status: " << status << endl;
+    }
+    cout << endl;
+}
