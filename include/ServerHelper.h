@@ -43,4 +43,6 @@ bool contains_word(const array<char, BUFFERSIZE>& buffer, const string& word);
 
 string extract_str_after_marker(const string& input, const string& marker);
 
+void  create_decrypt_file(User &u);
+
 #endif //COMP7402_PROJECT_SERVERHELPER_H
